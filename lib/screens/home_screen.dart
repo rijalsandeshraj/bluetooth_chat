@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
           final bluetoothOn = snapshot.data ?? false;
           return Scaffold(
             appBar: AppBar(
-              title: const Text("Bluetooth Connect"),
+              title: const Text("Bluetooth Chat"),
             ),
             floatingActionButton: switch (isListening) {
               true => null,

@@ -4,7 +4,7 @@
     <uses-permission android:minSdkVersion="31" android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:minSdkVersion="31" android:name="android.permission.BLUETOOTH_SCAN" />
     <application
-        android:label="Bluetooth Share"
+        android:label="Bluetooth Chat"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
