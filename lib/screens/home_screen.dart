@@ -1,4 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:all_bluetooth/all_bluetooth.dart';
+import 'package:bluetooth_chat/utils/show_custom_snack_bar.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -13,16 +17,54 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final bondedDevices = ValueNotifier(<BluetoothDevice>[]);
-
   bool isListening = false;
+
+  Future<bool> requestBluetoothPermissions() async {
+    final AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
+    final int androidApiLevel = androidInfo.version.sdkInt;
+
+    // Request permissions based on API level
+    if (androidApiLevel >= 31) {
+      // Android 12 and above
+      final Map<Permission, PermissionStatus> statuses = await [
+        Permission.bluetoothScan,
+        Permission.bluetoothConnect,
+        Permission.bluetoothAdvertise,
+      ].request();
+
+      if (statuses[Permission.bluetoothScan] == PermissionStatus.granted &&
+          statuses[Permission.bluetoothConnect] == PermissionStatus.granted &&
+          statuses[Permission.bluetoothAdvertise] == PermissionStatus.granted) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      // Below Android 12
+      final Map<Permission, PermissionStatus> statuses = await [
+        Permission.bluetooth,
+        Permission.location,
+      ].request();
+      if (statuses[Permission.bluetooth] == PermissionStatus.granted &&
+          statuses[Permission.location] == PermissionStatus.granted) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    Future.wait([
-      Permission.bluetooth.request(),
-      Permission.bluetoothScan.request(),
-      Permission.bluetoothConnect.request(),
-    ]);
+    requestBluetoothPermissions().then((value) {
+      if (value) {
+        showCustomSnackBar(context, 'Bluetooth permission granted');
+      } else {
+        showCustomSnackBar(context, 'Failed to get Bluetooth permission',
+            taskSuccess: false);
+      }
+    });
   }
 
   @override
@@ -32,9 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context, snapshot) {
           final bluetoothOn = snapshot.data ?? false;
           return Scaffold(
-            appBar: AppBar(
-              title: const Text("Bluetooth Chat"),
-            ),
+            appBar: AppBar(title: const Text("Bluetooth Chat")),
             floatingActionButton: switch (isListening) {
               true => null,
               false => FloatingActionButton(
@@ -74,17 +114,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   )
                 : Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(10),
                     child: Column(
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              switch (bluetoothOn) {
+                              'BLUETOOTH: ${switch (bluetoothOn) {
                                 true => "ON",
                                 false => "OFF",
-                              },
+                              }}',
                               style: TextStyle(
                                   color:
                                       bluetoothOn ? Colors.green : Colors.red),
@@ -111,6 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             builder: (context, devices, child) {
                               return Expanded(
                                 child: ListView.builder(
+                                  physics: const BouncingScrollPhysics(),
                                   itemCount: bondedDevices.value.length,
                                   itemBuilder: (context, index) {
                                     final device = devices[index];

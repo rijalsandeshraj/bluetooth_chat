@@ -16,19 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Bluetooth Chat',
       home: const SplashScreen(),
-      //  StreamBuilder(
-      //     stream: allBluetooth.listenForConnection,
-      //     builder: (context, snapshot) {
-      //       final result = snapshot.data;
-      //       if (result?.state == true) {
-      //         return const ChatScreen();
-      //       }
-      //       print(result);
-      //       return const HomeScreen();
-      //     }),
-      theme: ThemeData(
-        useMaterial3: false,
-      ),
+      theme: ThemeData(useMaterial3: false),
       debugShowCheckedModeBanner: false,
     );
   }

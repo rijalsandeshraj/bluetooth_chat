@@ -1,6 +1,4 @@
-import 'package:bluetooth_chat/main.dart';
-import 'package:bluetooth_chat/screens/chat_screen.dart';
-import 'package:bluetooth_chat/screens/home_screen.dart';
+import 'package:bluetooth_chat/screens/landing_screen.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -18,16 +16,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-              builder: (BuildContext context) => StreamBuilder(
-                  stream: allBluetooth.listenForConnection,
-                  builder: (context, snapshot) {
-                    final result = snapshot.data;
-                    if (result?.state == true) {
-                      return const ChatScreen();
-                    }
-                    print(result);
-                    return const HomeScreen();
-                  })));
+              builder: (BuildContext context) => const LandingScreen()));
     });
   }
 
